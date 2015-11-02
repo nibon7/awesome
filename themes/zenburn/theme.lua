@@ -18,7 +18,7 @@ theme.wallpaper_cmd = { "awsetbg " .. themedir .. "/zenburn-background.png" }
 -- }}}
 
 -- {{{ Styles
-theme.font      = "Source Han Sans CN Normal 10"
+theme.font      = "DejaVu Sans 10"
 
 -- {{{ Colors
 theme.fg_normal = "#DCDCCC"
@@ -76,7 +76,6 @@ theme.menu_width  = "100"
 -- }}}
 
 -- {{{ Icons
-theme.mem                   = icondir .. "/mem.png" 
 -- {{{ Taglist
 theme.taglist_squares_sel   = themedir .. "/taglist/squarefz.png"
 theme.taglist_squares_unsel = themedir .. "/taglist/squarez.png"

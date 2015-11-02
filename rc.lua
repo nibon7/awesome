@@ -8,6 +8,8 @@ require("beautiful")
 require("naughty")
 require("vicious")
 require("autorun")
+require("vol")
+require("bat")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -109,16 +111,19 @@ mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
 
 -- {{{ Widget
 vol_widget = widget({ type = "textbox", align = "right" })
-vicious.register(vol_widget, vicious.widgets.volume, "|$2<span color='green'>$1%</span>||", 1, "Master")
-
-mem_widget = widget({ type = "textbox", align = "right" })
-vicious.register(mem_widget, vicious.widgets.mem, "|内存:<span color='green'>$1%</span>|")
-
-cpu_widget = widget({ type = "textbox", align = "right" })
-vicious.register(cpu_widget, vicious.widgets.cpu, "|CPU:<span color='green'>$1% $2% $3% $4%</span>|")
+update_vol_info(vol_widget)
+awful.hooks.timer.register(10, function () update_vol_info(vol_widget) end)
 
 bat_widget = widget({ type = "textbox", align = "right" })
-vicious.register(bat_widget, vicious.widgets.bat, "||电量:$1<span color='green'>$2%</span>|", 5, "BAT0")
+update_bat_info(bat_widget)
+awful.hooks.timer.register(10, function () update_bat_info(bat_widget) end)
+
+mem_widget = widget({ type = "textbox", align = "right" })
+vicious.register(mem_widget, vicious.widgets.mem, "Mem<span color='green'>$1%</span>")
+
+cpu_widget = widget({ type = "textbox", align = "right" })
+vicious.register(cpu_widget, vicious.widgets.cpu, "CPU<span color='green'>$1%</span>")
+
 -- }}}
 
 -- {{{ Wibox
@@ -193,7 +198,7 @@ for s = 1, screen.count() do
                                           end, mytasklist.buttons)
 
     -- Create the wibox
-    mywibox[s] = awful.wibox({ position = "top", screen = s })
+    mywibox[s] = awful.wibox({ position = "bottom", screen = s })
     -- Add widgets to the wibox - order matters
     mywibox[s].widgets = {
         {
@@ -286,12 +291,12 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "b",     function () awful.util.spawn("google-chrome-stable") end),
     awful.key({ altkey, "Control" }, "l",     function () awful.util.spawn("xscreensaver-command -lock") end),
     -- Volume control
-    awful.key({ modkey,           }, "Up",    function () awful.util.spawn("amixer -q sset Master 2%+ unmuted") end),
-    awful.key({ modkey,           }, "Down",  function () awful.util.spawn("amixer -q sset Master 2%- unmuted") end),
-    awful.key({}, "XF86AudioRaiseVolume",     function () awful.util.spawn("amixer -q sset Master 2%+ unmuted") end),
-    awful.key({}, "XF86AudioLowerVolume",     function () awful.util.spawn("amixer -q sset Master 2%- unmuted") end),
-    awful.key({}, "XF86AudioMute",            function () awful.util.spawn("amixer -q sset Master toggle") end),
-    -- Audio
+    awful.key({ modkey,           }, "Up",    function () set_vol(vol_widget, "up") end),
+    awful.key({ modkey,           }, "Down",  function () set_vol(vol_widget, "down") end),
+    awful.key({}, "XF86AudioRaiseVolume",     function () set_vol(vol_widget, "up") end),
+    awful.key({}, "XF86AudioLowerVolume",     function () set_vol(vol_widget, "down") end),
+    awful.key({}, "XF86AudioMute",            function () set_vol(vol_widget, "toggle") end),
+    -- Audio control
     awful.key({ modkey,           }, "s",     function () awful.util.spawn("xmms2 toggle") end),
     awful.key({}, "XF86AudioStop",            function () awful.util.spawn("xmms2 stop") end),
     awful.key({}, "XF86AudioPlay",            function () awful.util.spawn("xmms2 play") end),
@@ -430,8 +435,8 @@ mytextclock:add_signal("mouse::enter", function(c)
     naughty.notify({ 
         text = s,
         timeout = 3,
+        position = "bottom_right",
         opacity = 0.8
     })
 end)
-
 -- }}}
