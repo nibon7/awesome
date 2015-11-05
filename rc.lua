@@ -58,17 +58,17 @@ altkey = "Mod1"
 -- Table of layouts to cover with awful.layout.inc, order matters.
 layouts =
 {
-    awful.layout.suit.floating,
-    awful.layout.suit.tile,
-    awful.layout.suit.tile.left,
+    --awful.layout.suit.floating,
+    --awful.layout.suit.tile,
+    --awful.layout.suit.tile.left,
     awful.layout.suit.tile.bottom,
     awful.layout.suit.tile.top,
     awful.layout.suit.fair,
     awful.layout.suit.fair.horizontal,
     awful.layout.suit.spiral,
     awful.layout.suit.spiral.dwindle,
-    awful.layout.suit.max,
-    awful.layout.suit.max.fullscreen,
+    --awful.layout.suit.max,
+    --awful.layout.suit.max.fullscreen,
     awful.layout.suit.magnifier
 }
 -- }}}
@@ -76,9 +76,10 @@ layouts =
 -- {{{ Tags
 -- Define a tag table which hold all screen tags.
 tags = {}
+
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
-    tags[s] = awful.tag({ 1, 2, 3, 4}, s, layouts[1])
+    tags[s] = awful.tag({1, 2, 3, 4}, s, layouts[1])
 end
 -- }}}
 
@@ -97,6 +98,7 @@ mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesom
                                     { "URxvt", terminal, icons .. "/Faenza/apps/48/Terminal.png" },
                                     { "Google Chrome", "google-chrome-stable", hicolor_icons .. "/google-chrome.png" },
                                     { "Devhelp", "devhelp", hicolor_icons .. "/devhelp.png" },
+                                    { "FBReader", "FBReader", "/usr/share/pixmaps/FBReader.png" },
                                     { "Virt Manager", "virt-manager", hicolor_icons .. "/virt-manager.png" },
                                     { "Wireshark", "wireshark", hicolor_icons .. "/wireshark.png" },
                                     { "WPS Writer", "wps", hicolor_icons .. "/wps-office-wpsmain.png" },
@@ -119,11 +121,10 @@ update_bat_info(bat_widget)
 awful.hooks.timer.register(10, function () update_bat_info(bat_widget) end)
 
 mem_widget = widget({ type = "textbox", align = "right" })
-vicious.register(mem_widget, vicious.widgets.mem, "Mem<span color='green'>$1%</span>")
+vicious.register(mem_widget, vicious.widgets.mem, "Mem<span color='green'>$1%</span>", 2)
 
 cpu_widget = widget({ type = "textbox", align = "right" })
-vicious.register(cpu_widget, vicious.widgets.cpu, "CPU<span color='green'>$1%</span>")
-
+vicious.register(cpu_widget, vicious.widgets.cpu, "CPU<span color='green'>$1%</span>", 2)
 -- }}}
 
 -- {{{ Wibox
@@ -161,14 +162,17 @@ mytasklist.buttons = awful.util.table.join(
                                                   c:raise()
                                               end
                                           end),
-                     awful.button({ }, 3, function ()
-                                              if instance then
-                                                  instance:hide()
-                                                  instance = nil
-                                              else
-                                                  instance = awful.menu.clients({ width=250 })
-                                              end
-                                          end),
+                     --awful.button({ }, 3, function ()
+                     --                         if instance then
+                     --                             instance:hide()
+                     --                             instance = nil
+                     --                         else
+                     --                             instance = awful.menu.clients({ width=250 })
+                     --                         end
+                     --                     end),
+                     awful.button({}, 3, function (c)
+                                             c:kill()
+                                         end),
                      awful.button({ }, 4, function ()
                                               awful.client.focus.byidx(1)
                                               if client.focus then client.focus:raise() end
@@ -210,9 +214,9 @@ for s = 1, screen.count() do
         mylayoutbox[s],
         mytextclock,
         vol_widget,
+        bat_widget,
         mem_widget,
         cpu_widget,
-        bat_widget,
         s == 1 and mysystray or nil,
         mytasklist[s],
         layout = awful.widget.layout.horizontal.rightleft
@@ -390,10 +394,17 @@ awful.rules.rules = {
       properties = { floating = true } },
     { rule = { class = "gimp" },
       properties = { floating = true } },
-    { rule = { class = "urxvt"},
-      properties = { opacity = 0.8} },
-    { rule = { class = "virt-manager"},
-      properties = { floating = true} },
+    { rule = { class = "URxvt"},
+      properties = { opacity = 0.9 } },
+    { rule = { class = "MuPDF" },
+      properties = { floating = true } ,
+      callback = awful.placement.centered },
+    { rule = { class = "google-chrome" },
+      properties = { floating = true } ,
+      callback = awful.placement.centered },
+    { rule = { class = "Virt-manager" },
+      properties = { floating = true },
+      callback = awful.placement.centered },
     -- Set Firefox to always map on tags number 2 of screen 1.
     -- { rule = { class = "Firefox" },
     --   properties = { tag = tags[1][2] } },
@@ -430,7 +441,7 @@ end)
 client.add_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.add_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- Show calendar
-mytextclock:add_signal("mouse::enter", function(c)
+mytextclock:add_signal("mouse::enter", function()
     local s = awful.util.pread("cal")
     naughty.notify({ 
         text = s,

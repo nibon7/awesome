@@ -14,7 +14,8 @@ local icondir = icons .. "/" .. themename
 
 -- {{{ Main
 theme = {}
-theme.wallpaper_cmd = { "awsetbg " .. themedir .. "/zenburn-background.png" }
+--theme.wallpaper_cmd = { "awsetbg " .. themedir .. "/zenburn-background.png" }
+theme.wallpaper_cmd = { "feh  --bg-scale '/usr/share/backgrounds/gnome/adwaita-day.jpg'" }
 -- }}}
 
 -- {{{ Styles

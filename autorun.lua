@@ -1,6 +1,7 @@
 local autorun = true
 local autorun_apps = {
     "xcompmgr -c -C -t-5 -l-5 -r4.2 -o.55",
+    --"xcompmgr -cF",
     "fcitx-autostart",
     "gsettings-data-convert",
     "nm-applet",
